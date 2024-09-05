@@ -1,0 +1,120 @@
+@startuml
+!define RECTANGLE "rectangle"
+!define COMPONENT "component"
+
+skinparam ranksep 250
+left to right direction
+skinparam linetype ortho
+:Customer:
+
+package "API Gateway" {
+  [API Gateway] as apigateway << (C,#8DD3C7) API Gateway >>
+}
+
+package "Authentication Service" {
+  [Authentication API] as authenticationapi << (C,#8DD3C7) REST >>
+  [Authentication Service] as authenticationservice << (C,#F7DC6F) PHP 8.3 Laravel 11  >>
+  [Authentication Worker] as authenticationworker << (C,#8DD3C7) Worker >>
+}
+
+package "Payment Service" {
+  [Payment API] as paymentapi << (C,#8DD3C7) REST >>
+  [Payment Service] as paymentservice << (C,#F7DC6F) PHP 8.3 Laravel 11  >>
+  [Payment Worker] as paymentworker << (C,#8DD3C7) Worker >>
+}
+
+package "Booking Service" {
+  [Booking API] as bookingapi << (C,#8DD3C7) REST >>
+  [Booking Service] as bookingservice << (C,#F7DC6F) PHP 8.3 Laravel 11  >>
+  [Booking Worker] as bookingworker << (C,#8DD3C7) Worker >>
+}
+
+package "User Service" {
+  [User API] as userapi << (C,#8DD3C7) REST >>
+  [User Service] as userservice << (C,#F7DC6F) PHP 8.3 Laravel 11  >>
+  [User Worker] as userworker << (C,#8DD3C7) Worker >>
+}
+
+package "Property Service" {
+  [Property API] as propertyapi << (C,#8DD3C7) REST >>
+  [Property Service] as propertyservice << (C,#F7DC6F) PHP 8.3 Laravel 11  >>
+  [Property Worker] as propertyworker << (C,#8DD3C7) Worker >>
+}
+
+package "Notification Service" {
+  [Notification API] as notificationapi << (C,#8DD3C7) REST >>
+  [Notification Service] as notificationservice << (C,#F7DC6F) PHP 8.3 Laravel 11  >>
+  [SendMail Worker] as sendMailworker << (C,#8DD3C7) Worker >>
+  [SendSMS Worker] as sendSMSworker << (C,#8DD3C7) Worker >>
+  [SendInternalNotif Worker] as sendInternalNotifworker << (C,#8DD3C7) Worker >>
+}
+
+package "Review Service" {
+  [Review API] as reviewapi << (C,#8DD3C7) REST >>
+  [Review Service] as reviewservice << (C,#F7DC6F) PHP 8.3 Laravel 11  >>
+  [Review Worker] as revieworker << (C,#8DD3C7) Worker >>
+}
+
+package "Message Service" {
+  [Message API] as messageapi << (C,#8DD3C7) REST >>
+  [Message Service] as messageservice << (C,#F7DC6F) PHP 8.3 Laravel 11  >>
+  [Message Worker] as messageworker << (C,#8DD3C7) Worker >>
+}
+
+package "RabbitMQ" {
+  [RabbitMQ] as rabbitmq << (C,#8DD3C7) Broker Message >>
+}
+
+database MySql {
+
+}
+
+Customer --> apigateway
+
+apigateway --> paymentapi : [JSON/HTTPS]
+apigateway --> bookingapi : [JSON/HTTPS]
+apigateway --> authenticationapi : [JSON/HTTPS]
+apigateway --> userapi : [JSON/HTTPS]
+apigateway --> propertyapi : [JSON/HTTPS]
+apigateway --> notificationapi : [JSON/HTTPS]
+apigateway --> reviewapi : [JSON/HTTPS]
+apigateway --> messageapi : [JSON/HTTPS]
+
+paymentapi -> paymentservice : [JSON/HTTPS]
+bookingapi -> bookingservice : [JSON/HTTPS]
+authenticationapi -> authenticationservice : [JSON/HTTPS]
+userapi -> userservice : [JSON/HTTPS]
+propertyapi -> propertyservice : [JSON/HTTPS]
+notificationapi -> notificationservice : [JSON/HTTPS]
+reviewapi -> reviewservice : [JSON/HTTPS]
+messageapi -> messageservice : [JSON/HTTPS]
+
+paymentworker --> rabbitmq
+bookingworker --> rabbitmq
+authenticationworker --> rabbitmq
+propertyworker --> rabbitmq
+sendMailworker --> rabbitmq
+sendSMSworker --> rabbitmq
+sendInternalNotifworker --> rabbitmq
+revieworker --> rabbitmq
+messageworker --> rabbitmq
+
+bookingservice --> rabbitmq : [AMQP]
+userservice --> rabbitmq : [AMQP]
+paymentservice --> rabbitmq : [AMQP]
+propertyservice --> rabbitmq : [AMQP]
+authenticationservice --> rabbitmq : [AMQP]
+notificationservice --> rabbitmq : [AMQP]
+reviewservice --> rabbitmq : [AMQP]
+messageservice --> rabbitmq : [AMQP]
+
+authenticationworker ---> MySql : [PDO_MySQL]
+userworker ---> MySql : [PDO_MySQL]
+paymentworker ---> MySql : [PDO_MySQL]
+bookingworker ---> MySql : [PDO_MySQL]
+sendInternalNotifworker ---> MySql : [PDO_MySQL]
+sendMailworker ---> MySql : [PDO_MySQL]
+sendSMSworker ---> MySql : [PDO_MySQL]
+messageworker ---> MySql : [PDO_MySQL]
+
+@enduml

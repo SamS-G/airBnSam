@@ -1,0 +1,69 @@
+@startuml
+actor User
+
+participant "API Gateway" as api_gateway
+participant "User Service" as user_service
+participant "Listing Service" as listing_service
+participant "Payment Service" as payment_service
+participant "Review Service" as review_service
+participant "Search Service" as search_service
+participant "RabbitMQ" as rabbitmq
+participant "Payment Worker" as payment_worker
+participant "Review Worker" as review_worker
+
+User -> api_gateway: Requête
+api_gateway -> user_service: Requête pour authentification
+user_service -> api_gateway: Réponse
+api_gateway -> listing_service: Requête pour recherche d'annonces
+listing_service -> api_gateway: Réponse
+api_gateway -> payment_service: Requête pour paiement
+payment_service -> api_gateway: Réponse
+api_gateway -> review_service: Requête pour évaluation
+review_service -> api_gateway: Réponse
+api_gateway -> search_service: Requête pour recherche avancée
+search_service -> api_gateway: Réponse
+
+payment_service -> rabbitmq: Message pour paiement
+rabbitmq -> payment_worker: Message pour traitement du paiement
+payment_worker -> payment_service: Réponse
+
+review_service -> rabbitmq: Message pour évaluation
+rabbitmq -> review_worker: Message pour traitement de l'évaluation
+review_worker -> review_service: Réponse
+
+note right of api_gateway
+  API Gateway
+end note
+
+note right of user_service
+  User Service
+end note
+
+note right of listing_service
+  Listing Service
+end note
+
+note right of payment_service
+  Payment Service
+end note
+
+note right of review_service
+  Review Service
+end note
+
+note right of search_service
+  Search Service
+end note
+
+note right of rabbitmq
+  RabbitMQ
+end note
+
+note right of payment_worker
+  Payment Worker
+end note
+
+note right of review_worker
+  Review Worker
+end note
+@enduml
